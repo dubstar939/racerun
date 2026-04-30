@@ -1,0 +1,12 @@
+{
+  "name": "racerun",
+  "version": "1.0.0",
+  "description": "Retro arcade racing game for web",
+  "scripts": {
+    "dev": "npx http-server -p 8080 -c-1",
+    "build": "node scripts/optimize-assets.js",
+    "lint": "echo 'No linting configured'"
+  },
+  "keywords": ["game", "racing", "arcade", "html5"],
+  "license": "MIT"
+}
