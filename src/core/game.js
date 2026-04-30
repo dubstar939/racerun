@@ -83,6 +83,7 @@ const Game = {
     // Load assets
     this.loadAssets(function() {
       self.setupSpriteConstants();
+      self.setupPlayerDimensions();
       self.createTrack();
       self.setupTouchControls();
       self.setupEventListeners();
@@ -216,6 +217,14 @@ const Game = {
     Config.skySpeed = 0.001;
     Config.hillSpeed = 0.002;
     Config.treeSpeed = 0.003;
+  },
+  
+  /**
+   * Setup player dimensions after sprites are loaded
+   */
+  setupPlayerDimensions: function() {
+    this.player.width = 80 * Config.SPRITES.SCALE;
+    this.player.height = 45 * Config.SPRITES.SCALE;
   },
   
   /**

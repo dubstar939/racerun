@@ -42,9 +42,9 @@ const Player = {
     this.updown = 0;
     this.skin = options.skin || 'red';
     
-    // Calculate dimensions based on config
-    this.width = 80 * Config.SPRITES.SCALE;
-    this.height = 45 * Config.SPRITES.SCALE;
+    // Dimensions will be set after sprites are loaded
+    this.width = 0;
+    this.height = 0;
     
     // Physics settings (will be scaled in game init)
     this.accel = cfg.ACCEL;
