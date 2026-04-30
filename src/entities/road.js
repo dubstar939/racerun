@@ -112,6 +112,12 @@ const Road = {
     var n = this.segments.length;
     var dark = Math.floor(n / rumbleLength) % 2;
     
+    // Use theme colors if set, otherwise use defaults
+    var roadColor = dark ? '#696969' : '#6B6B6B';
+    var grassColor = dark ? '#009A00' : '#10AA10';
+    var rumbleColor = dark ? '#BBBBBB' : '#555555';
+    var laneColor = dark ? null : '#CCCCCC';
+    
     var segment = {
       index: n,
       p1: { world: { x: 0, y: y, z: z }, camera: {}, screen: {} },
@@ -119,8 +125,13 @@ const Road = {
       curve: curve,
       sprites: [],
       cars: [],
-      color: dark ? COLORS.DARK : COLORS.LIGHT,
-      grassColor: dark ? '#009A00' : '#10AA10'
+      color: {
+        road: roadColor,
+        grass: grassColor,
+        rumble: rumbleColor,
+        lane: laneColor
+      },
+      grassColor: grassColor
     };
     
     // Override colors if theme is set
@@ -145,16 +156,20 @@ const Road = {
     var startLineIndex = 0;
     var finishLineIndex = this.segments.length - 1;
     
+    // Start/finish colors
+    var startColor = { road: 'white', grass: 'white', rumble: 'white', lane: 'white' };
+    var finishColor = { road: 'black', grass: 'black', rumble: 'black', lane: 'black' };
+    
     // Mark start line
     for (var i = 0; i < rumbleLength * 3; i++) {
       var idx = (startLineIndex + i) % this.segments.length;
-      this.segments[idx].color = COLORS.START;
+      this.segments[idx].color = startColor;
     }
     
     // Mark finish line
     for (var i = 0; i < rumbleLength * 3; i++) {
       var idx = (finishLineIndex - i + this.segments.length) % this.segments.length;
-      this.segments[idx].color = COLORS.FINISH;
+      this.segments[idx].color = finishColor;
     }
   },
   

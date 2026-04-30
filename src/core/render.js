@@ -123,7 +123,7 @@ const Render = {
   fog: function(ctx, x, y, width, height, fog) {
     if (fog < 1) {
       ctx.globalAlpha = 1 - fog;
-      ctx.fillStyle = COLORS.FOG || '#005108';
+      ctx.fillStyle = Config.THEMES.DAY.fog || '#005108';
       ctx.fillRect(x, y, width, height);
       ctx.globalAlpha = 1;
     }
