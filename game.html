@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="RacerUN - The Ultimate Arcade Racing Game">
+  <meta name="theme-color" content="#1a1a2e">
+  <title>RacerUN - Arcade Racing Game</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/sprites.png">
+  
+  <!-- Styles -->
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #0a0a1a;
+      font-family: Arial, Helvetica, sans-serif;
+      touch-action: none;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    
+    #game-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    #canvas {
+      display: block;
+      max-width: 100%;
+      max-height: 100%;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+    
+    /* HUD Overlay */
+    #hud {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 10px 20px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+      z-index: 50;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+    }
+    
+    .hud-item {
+      background: rgba(0,0,0,0.5);
+      padding: 5px 15px;
+      border-radius: 20px;
+      border: 2px solid rgba(255,255,255,0.3);
+    }
+    
+    .hud-label {
+      color: #aaa;
+      font-size: 12px;
+      margin-right: 5px;
+    }
+    
+    .hud-value {
+      color: #fff;
+      font-size: 18px;
+    }
+    
+    #hud .speed .hud-value {
+      color: #ffcc00;
+    }
+    
+    #hud .score .hud-value {
+      color: #00ff88;
+    }
+    
+    /* Mute button */
+    #mute {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 40px;
+      height: 40px;
+      background: url('images/mute.png') no-repeat;
+      background-size: contain;
+      cursor: pointer;
+      z-index: 100;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+    
+    #mute:hover {
+      opacity: 1;
+    }
+    
+    #mute.on {
+      filter: grayscale(100%);
+    }
+    
+    /* Touch controls container */
+    #touch-controls {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      pointer-events: none;
+      z-index: 100;
+    }
+    
+    /* Loading screen */
+    #loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #0a0a1a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      transition: opacity 0.5s;
+    }
+    
+    #loading.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    #loading h1 {
+      color: #FFD700;
+      font-size: 48px;
+      margin-bottom: 20px;
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    }
+    
+    #loading-bar {
+      width: 200px;
+      height: 4px;
+      background: #333;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    
+    #loading-progress {
+      width: 0%;
+      height: 100%;
+      background: linear-gradient(90deg, #FFD700, #ffaa00);
+      transition: width 0.3s;
+    }
+    
+    #loading-text {
+      color: #888;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+    
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+      #hud {
+        font-size: 12px;
+        padding: 5px 10px;
+      }
+      
+      .hud-value {
+        font-size: 14px !important;
+      }
+      
+      .hud-label {
+        font-size: 10px;
+      }
+    }
+    
+    /* Landscape mode warning for mobile */
+    @media (max-height: 500px) and (orientation: landscape) {
+      #mobile-landscape-hint {
+        display: flex;
+      }
+    }
+    
+    #mobile-landscape-hint {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.9);
+      color: white;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      text-align: center;
+      padding: 20px;
+    }
+    
+    #mobile-landscape-hint p {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Loading Screen -->
+  <div id="loading">
+    <h1>RACER UN</h1>
+    <div id="loading-bar">
+      <div id="loading-progress"></div>
+    </div>
+    <div id="loading-text">Loading assets...</div>
+  </div>
+  
+  <!-- Mobile Landscape Hint -->
+  <div id="mobile-landscape-hint">
+    <p>🔄 For best experience, rotate your device to portrait mode</p>
+    <p style="font-size: 14px; color: #888;">or continue in landscape</p>
+  </div>
+  
+  <!-- Game Container -->
+  <div id="game-container">
+    <canvas id="canvas">
+      Sorry, this game requires a browser that supports the HTML5 canvas element.
+    </canvas>
+    
+    <!-- HUD -->
+    <div id="hud">
+      <div class="hud-item speed">
+        <span class="hud-label">SPEED</span>
+        <span class="hud-value" id="speed-value">0</span>
+        <span class="hud-label">km/h</span>
+      </div>
+      <div class="hud-item score">
+        <span class="hud-label">SCORE</span>
+        <span class="hud-value" id="score-value">0</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">DIST</span>
+        <span class="hud-value" id="distance-value">0</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">TIME</span>
+        <span class="hud-value" id="time-value">0.0</span>
+      </div>
+      <div class="hud-item">
+        <span class="hud-label">LAP</span>
+        <span class="hud-value" id="level-value">1</span>
+      </div>
+    </div>
+    
+    <!-- Mute Button -->
+    <div id="mute" title="Toggle Music"></div>
+    
+    <!-- Touch Controls -->
+    <div id="touch-controls"></div>
+  </div>
+  
+  <!-- Audio -->
+  <audio id="music" preload="auto">
+    <source src="music/racer.ogg" type="audio/ogg">
+    <source src="music/racer.mp3" type="audio/mpeg">
+  </audio>
+  
+  <!-- Scripts - Load order matters -->
+  <script src="src/config/gameConfig.js"></script>
+  <script src="src/core/utils.js"></script>
+  <script src="src/core/render.js"></script>
+  <script src="src/input/inputHandler.js"></script>
+  <script src="src/entities/player.js"></script>
+  <script src="src/entities/traffic.js"></script>
+  <script src="src/entities/road.js"></script>
+  <script src="src/audio/audioManager.js"></script>
+  <script src="src/ui/uiManager.js"></script>
+  <script src="src/core/game.js"></script>
+  
+  <!-- Initialize Game -->
+  <script>
+    // Hide loading screen when ready
+    window.addEventListener('load', function() {
+      var loading = document.getElementById('loading');
+      var progress = document.getElementById('loading-progress');
+      
+      // Simulate loading progress
+      var loadProgress = 0;
+      var loadInterval = setInterval(function() {
+        loadProgress += 10;
+        progress.style.width = loadProgress + '%';
+        if (loadProgress >= 100) {
+          clearInterval(loadInterval);
+          setTimeout(function() {
+            loading.classList.add('hidden');
+          }, 500);
+        }
+      }, 100);
+      
+      // Initialize the game
+      try {
+        Game.init('canvas');
+      } catch (e) {
+        console.error('Failed to initialize game:', e);
+        document.getElementById('loading-text').textContent = 'Error loading game. Please refresh.';
+      }
+    });
+    
+    // Handle visibility change (pause on tab switch)
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden && Game.gameState === 'playing') {
+        Game.togglePause();
+      }
+    });
+    
+    // Handle orientation change
+    window.addEventListener('orientationchange', function() {
+      setTimeout(function() {
+        Game.resize();
+      }, 100);
+    });
+  </script>
+</body>
+</html>
